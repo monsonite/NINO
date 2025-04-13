@@ -81,4 +81,53 @@ This is a minimal subset to get the CPU to do anything. The following instructio
 
 This adds a few more functions, but is less than perfect. To simplify the instructon decoding it would be better to put the memory referencing instructions in the first 8, and those that do not reference memory in the upper 8.
 
+However, the intention is to have 16 general purpose registers R0 to R15 held in memory. 
+
+R0 is the Accumulator and is always the source of one of the operands. A 4-bit field allows us to select any other register, memory, or even the Accumulator as the other operand source.
+
+This opens up a lot more flexibility.
+
+Back in 2019 I proposed an architecture called Suite-16, which uses a similar technique:
+
+Suite-16 Instructions
+
+Register OPS-
+     0n        ---       --     Non-Register Ops
+     1n        SET       Rn     Constant  (Set)         Rn = @(PC)
+     2n        LD        Rn     (Load)                  AC = Rn
+     3n        ST        Rn     (Store)                 Rn = AC
+     4n        LD        @Rn    (Load Indirect)         AC = @Rn
+     5n        ST        @Rn    (Store Indirect)        @Rn = AC
+     6n        POP       @Rn    Pop  AC                 AC = @Rn  Rn = Rn + 1
+     7n        PUSH      @Rn    Push AC                 Rn = Rn - 1  @Rn = AC  
+     8n        AND       Rn     (AND)                   AC = AC & Rn 
+     9n        OR        Rn     (OR)                    AC = AC | Rn 
+     An        ADD       Rn     (Add)                   AC = AC + Rn
+     Bn        SUB       Rn     (Sub)                   AC = AC - Rn
+     Cn        INV       Rn     (Invert)                Rn = ~Rn
+     Dn        DCR       Rn     (Decrement)             Rn = Rn - 1
+     En        INR       Rn     (Increment)             Rn = Rn + 1
+     Fn        XOR       Rn     (XOR)                   AC = AC ^ Rn
+     
+Non-register OPS- always start with 0x
+
+     00        BRA    Always                        Target = IR7:0
+     01        BGT    AC>0                          Target = IR7:0
+     02        BLT    AC<0                          Target = IR7:0
+     03        BGE    AC>=0                         Target = IR7:0
+     04        BLE    AC<=0                         Target = IR7:0 
+     05        BNE    AC!=0                         Target = IR7:0
+     06        BEQ    AC=0                          Target = IR7:0     
+     07        JMP    16-bit                        Target = @(PC)
+     08        CALL   16-bit                        Target = @(PC)
+     09        RET    Return
+     0A        ADI    Add 8-bit Immediate           Immediate = IR7:0
+     0B        SBI    Subtract 8-bit Immediate      Immediate = IR7:0
+     0C        OUT                                  putchar(AC, port = IR7:0
+     0D        IN                                   AC = getchar(), port = IR7:0
+     0E        JP@                                  BRA (R0)
+     0F        OPR                                  Allows microcoded instructions and NOP AC &= AC
+
+
+
 
