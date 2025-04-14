@@ -11,27 +11,27 @@ I use the Teensy 4, because it is stupidly fast!
 
 But you can run it on anything from an ATmega328 upwards.
 
-It deviates from the Manchester Baby in that it allows up to 16 instructions in its Instruction Set. 
+It deviates from the Manchester Baby in that it allows up to 16 basic instructions in its Instruction Set. 
 
 It also uses a 24-bit word in memory.  
 
 This includes a 4-bit field for the instruction, a 4-bit field for register select select, and a 16-bit address/data field.
 
-The op-code or function is controlled by bits 23:20 of the instruction word. This allows for 16 instructions.
+The op-code or function is controlled by bits 23:20 of the instruction word. This allows for the 16 primary instructions. However, there are a further secondary 16 operations which do not involve the memory or registers.
 
-I have moved the address/data field to the right of the instruction word and made it little endian.  It occupies bits 15:0 of the instruction word.
+The address/data field is on the right of the instruction word and is little endian.  It occupies bits 15:0 of the instruction word.
 
 If Nino were implemented as a bit-serial processor, this would be the natural way to serialise the data - LSB first.
 
 ### Registers
 
-I have also built upon the experience gained from the Baby and the Manchester MK 1, where certain locations in memory were used as index registers. These were included to allow the program counter to be modified, using the data from the register. This allows relative jumps, indexed addressing and incrementing/decrementing of the PC. 
+Building upon the experience gained from the Baby and the Manchester MK 1, where certain locations in memory were used as index registers, Nino uses this approach too. These registers were included to allow the program counter to be modified, using the data from the register. This allows relative jumps, indexed addressing and incrementing/decrementing of the PC. 
 
 The Manchester Baby was the first machine to make use of index registers, or "modifiers" as they were called in 1948.
 
-I have made provision for 16 such 16-bit registers, labelled R0 to R15.
+There provision for 16 such 16-bit registers, labelled R0 to R15, where R0 is the accumulator.
 
-These registers will occupy a contiguous block of 16-words in memory. They are general purpose, so they can be used for various tasks. 
+These registers occupy a contiguous block of 16-words at the base of memory. They are general purpose, so they can be used for various tasks. 
 
 They are addressed by the "Register Field" which is bits 19:16 of the instruction word.
 
@@ -41,35 +41,38 @@ Experience has shown that programs consist of small modular routines, seldom exc
 
 ### Instructions
 
-The instruction incorporates the op-code field and the register select field as an orthogonal means of performing a wide range of 16-bit operations. This leads for a very easy to remember instruction set as it can be expressed as a pair of hex digits the upper or  rightmost digit is the op-code and the lower digit is the register number.
+The instruction incorporates the op-code field and the register select field as an orthogonal means of performing a wide range of 16-bit operations on the Accumulator R0 and the selected register R1 to R15. 
+
+The orthogonal nature of the instruction set allows any op-code to be used with any register, with one exception, opcode 0, which is reserved for options that do not reference the registers.
+
+This leads to a very easy to remember instruction set as it can be expressed as a pair of hex digits the upper or rightmost digit specifies the op-code and the lower digit selects the register number. 
+
+Opcodes 0x do not operate on a register, they are used for conditional branches, Call and Return, Input output and other operations that do not reference the memory. This technique gives a total of 241 instructions out of a possible 256.
 
 Registers are coded to reside in the first 16-bit words of memory, followed by a series of RST (restart) operations.
 
-So the instruction field looks something like a pair of hex nibbles:
+The instruction field looks like a pair of hex nibbles:
 
 ADD A, R1
 0x05 0x01
 
 This would appear in the instruction field as $51
 
-The orthogonal nature of the instruction set allows any op-code to be used with any register, with one exception, opcode 0, which is reserved for options that do not reference the registers.
+### Registers
 
+The Accumulator A  is R0,  R1-R7 are general purpose registers, R8 to R15 might also be used for specific purposes such as return stack pointer, Program Counter etc.
 
+Whilst the cpu is coded up as a switch statement and very simple, it took some time getting a text screen interface to work, to show the contents of the memory after each instruction has executed.
 
-The Accumulator A  is R0,  R1-R7 are general purpose, R8 to R15 might be used for specific purposes such as return stack pointer, Program counter etc.
+In this simulation memory to just 32 words, so that it will fit on a terminal screen, and can be implemented on the smaller Arduinos.
 
+This github repo contains the first draft of this simulated cpu. It has been purposefully been kept simple so that it is relatively easy to understand for the newcomer.
 
-Whilst the cpu is coded up as a switch statement and very simple, I spent a while getting a text screen interface to work, to show the contents of the memory with after each instruction.
-I have limited the memory to just 32 words, so that it will fit on a terminal screen.
-
-
-I have created this github repo that contains the first draft of this simulated cpu.
+The aim is that it can easily be extended to suit the application requirements.
 
 It was just a quick weekend hack, and currently only set up to perform a continuous addition into the Accumulator.
 
-It was more an exercise in programming to see how a simple cpu could be simulated in code.
-The code us 225 lines approximately of which comments are 30, the array of instructions is 35, the cpu is 40, Debug 1 (commented out) is 40 and Debug 2 is 80 lines.
-
+As an exercise in programming to illustrate how a simple cpu may be simulated in about 225 lines of code, approximately 30 are comments, the instruction array is 35, the cpu switch sttements are 40, Debug 1 (commented out) is 40 and Debug 2 is 80 lines.
 
 It is called NINO - which is Spanish for (boy) child, but also stands for Nonsense In Nonsense Out.
 
@@ -99,20 +102,22 @@ This is a minimal subset to get the CPU to do anything. The following instructio
 14   OUT    - Output data to the databus
 15   NOP    - No Operation
 
-This adds a few more functions, but is less than perfect. To simplify the instructon decoding it would be better to put the memory referencing instructions in the first 8, and those that do not reference memory in the upper 8.
+This adds a few more functions, but is less than perfect. To simplify the instructon decoding it would be better to put the memory referencing instructions in the lower 8, and those that do not reference memory in the upper 8.
 
-However, the intention is to have 16 general purpose registers R0 to R15 held in memory. 
+However, the intention is to have 16 general purpose registers R0 to R15 held in the base of memory.
+
+This allows a certain amount of abstraction from the raw machine level, and gives a much richer instruction set. 
 
 R0 is the Accumulator and is always the source of one of the operands. A 4-bit field allows us to select any other register, memory, or even the Accumulator as the other operand source.
 
-This opens up a lot more flexibility.
+This opens up a lot more flexibility, and gives a machine that is easier to program.
 
-Back in 2019 I proposed an architecture called Suite-16, which uses a similar technique:
+Back in 2019 I proposed an architecture called Suite-16, which used a similar technique:
 
-Suite-16 Instructions
+### Suite-16 Instructions
 
 Register OPS-
-     0n        ---       --     Non-Register Ops
+     0n        ---       --     Non-Register Ops (see below)
      1n        SET       Rn     Constant  (Set)         Rn = @(PC)
      2n        LD        Rn     (Load)                  AC = Rn
      3n        ST        Rn     (Store)                 Rn = AC
@@ -131,22 +136,28 @@ Register OPS-
      
 Non-register OPS- always start with 0x
 
-     00        BRA    Always                        Target = IR7:0
-     01        BGT    AC>0                          Target = IR7:0
-     02        BLT    AC<0                          Target = IR7:0
-     03        BGE    AC>=0                         Target = IR7:0
-     04        BLE    AC<=0                         Target = IR7:0 
-     05        BNE    AC!=0                         Target = IR7:0
-     06        BEQ    AC=0                          Target = IR7:0     
+     00        BRA    Always Branch                 Target = @(PC)
+     01        BGT    AC>0                          Target = @(PC)
+     02        BLT    AC<0                          Target = @(PC)
+     03        BGE    AC>=0                         Target = @(PC)
+     04        BLE    AC<=0                         Target = @(PC)
+     05        BNE    AC!=0                         Target = @(PC)
+     06        BEQ    AC=0                          Target = @(PC)   
      07        JMP    16-bit                        Target = @(PC)
      08        CALL   16-bit                        Target = @(PC)
      09        RET    Return
      0A        ADI    Add 8-bit Immediate           Immediate = IR7:0
      0B        SBI    Subtract 8-bit Immediate      Immediate = IR7:0
-     0C        OUT                                  putchar(AC, port = IR7:0
+     0C        OUT                                  putchar(AC), port = IR7:0
      0D        IN                                   AC = getchar(), port = IR7:0
      0E        JP@                                  BRA (R0)
      0F        OPR                                  Allows microcoded instructions and NOP AC &= AC
+
+### Influences
+
+The basis of the Nino cpu is the Manchester Baby of 1948 and it's successor the Manchester MK 1, but there are two other major influences:- 
+
+The instruction set of the RCA 1802 which gave the idea of 16 general purpose registers, and Steve Wozniak's "SWEET 16" virtual machine for the 6502, which was also highly influenced by the RCA 1802 instruction set.
 
 
 
