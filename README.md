@@ -132,21 +132,37 @@ Back in 2019 I proposed an architecture called Suite-16, which used a similar te
 
 Register OPS-
      0n        ---       --     Non-Register Ops (see below)
+     
      1n        SET       Rn     Constant  (Set)         Rn = @(PC)
+     
      2n        LD        Rn     (Load)                  AC = Rn
+     
      3n        ST        Rn     (Store)                 Rn = AC
+     
      4n        LD        @Rn    (Load Indirect)         AC = @Rn
+     
      5n        ST        @Rn    (Store Indirect)        @Rn = AC
+     
      6n        POP       @Rn    Pop  AC                 AC = @Rn  Rn = Rn + 1
-     7n        PUSH      @Rn    Push AC                 Rn = Rn - 1  @Rn = AC  
+     
+     7n        PUSH      @Rn    Push AC                 Rn = Rn - 1  @Rn = AC 
+     
      8n        AND       Rn     (AND)                   AC = AC & Rn 
+     
      9n        OR        Rn     (OR)                    AC = AC | Rn 
+     
      An        ADD       Rn     (Add)                   AC = AC + Rn
+     
      Bn        SUB       Rn     (Sub)                   AC = AC - Rn
+     
      Cn        INV       Rn     (Invert)                Rn = ~Rn
+     
      Dn        DCR       Rn     (Decrement)             Rn = Rn - 1
+     
      En        INR       Rn     (Increment)             Rn = Rn + 1
+     
      Fn        XOR       Rn     (XOR)                   AC = AC ^ Rn
+     
      
 Non-register OPS- always start with 0x
 
