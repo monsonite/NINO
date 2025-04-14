@@ -23,6 +23,8 @@ I have moved the address/data field to the right of the instruction word and mad
 
 If Nino were implemented as a bit-serial processor, this would be the natural way to serialise the data - LSB first.
 
+### Registers
+
 I have also built upon the experience gained from the Baby and the Manchester MK 1, where certain locations in memory were used as index registers. These were included to allow the program counter to be modified, using the data from the register. This allows relative jumps, indexed addressing and incrementing/decrementing of the PC. 
 
 The Manchester Baby was the first machine to make use of index registers, or "modifiers" as they were called in 1948.
@@ -43,15 +45,17 @@ The instruction incorporates the op-code field and the register select field as 
 
 Registers are coded to reside in the first 16-bit words of memory, followed by a series of RST (restart) operations.
 
-
-
-
-
-
-
 So the instruction field looks something like a pair of hex nibbles:
+
 ADD A, R1
 0x05 0x01
+
+This would appear in the instruction field as $51
+
+The orthogonal nature of the instruction set allows any op-code to be used with any register, with one exception, opcode 0, which is reserved for options that do not reference the registers.
+
+
+
 The Accumulator A  is R0,  R1-R7 are general purpose, R8 to R15 might be used for specific purposes such as return stack pointer, Program counter etc.
 
 
