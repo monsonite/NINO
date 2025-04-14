@@ -83,23 +83,37 @@ The Manchester Baby first ran with only 6 useful instructions, but it could only
 The current line up is:
 
 0    JMP    - a 16-bit absolute jump, by reloading the PC with a target address
+
 1    JPR    - a relative jump, by adding a "modifier" to the PC
+
 2    LDN    - load an inverted data word into the Accumulator
+
 3    LDP    - load a non-inverted data word into the Accumulator
+
 4    SUB    - Subtract a data word from the Accumulator
-5    ADD    - Add a data word to the Accumulator 
+
+5    ADD    - Add a data word to the Accumulator
+
 6    SKZ    - Skip the next instruction if the Accumulator is zero.
+
 7    STO    - Store the contents of the Accumulator into memory
 
 This is a minimal subset to get the CPU to do anything. The following instructions are provisional and expected to change:
 
-8    AND    - Bitwise AND the Accumulator with a memory location  
-9    OR     - Bitwise OR the Accumulator with a memory location 
-10   XOR    - Bitwise XOR the Accumulator with a memory location  
+8    AND    - Bitwise AND the Accumulator with a memory location
+
+9    OR     - Bitwise OR the Accumulator with a memory location
+
+10   XOR    - Bitwise XOR the Accumulator with a memory location
+
 11   INC    - Increment the value of the Accumulator
+
 12   DEC    - Decrement the value of the Accumulator
+
 13   IN     - Input data from the bus into the Acccumulator
+
 14   OUT    - Output data to the databus
+
 15   NOP    - No Operation
 
 This adds a few more functions, but is less than perfect. To simplify the instructon decoding it would be better to put the memory referencing instructions in the lower 8, and those that do not reference memory in the upper 8.
