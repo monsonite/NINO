@@ -37,7 +37,7 @@ These registers can be manipulated from the Accumulator, and may also be used in
 
 Experience has shown that programs consist of small modular routines, seldom exceeding 20 or 30 words, so relative branching and the ability to move locally both forwards and backwards within a limited range of addresses greatly enhances versatility. It also allows the use of relocatable code, if very few absolute jumps are specified.
 
-###Instructions
+### Instructions
 
 The instruction incorporates the op-code field and the register select field as an orthogonal means of performing a wide range of 16-bit operations. This leads for a very easy to remember instruction set as it can be expressed as a pair of hex digits the upper or  rightmost digit is the op-code and the lower digit is the register number.
 
