@@ -151,20 +151,33 @@ Register OPS-
 Non-register OPS- always start with 0x
 
      00        BRA    Always Branch                 Target = @(PC)
+     
      01        BGT    AC>0                          Target = @(PC)
+     
      02        BLT    AC<0                          Target = @(PC)
+     
      03        BGE    AC>=0                         Target = @(PC)
+     
      04        BLE    AC<=0                         Target = @(PC)
+     
      05        BNE    AC!=0                         Target = @(PC)
-     06        BEQ    AC=0                          Target = @(PC)   
+     
+     06        BEQ    AC=0                          Target = @(PC) 
+     
      07        JMP    16-bit                        Target = @(PC)
+     
      08        CALL   16-bit                        Target = @(PC)
      09        RET    Return
      0A        ADI    Add 8-bit Immediate           Immediate = IR7:0
+     
      0B        SBI    Subtract 8-bit Immediate      Immediate = IR7:0
+     
      0C        OUT                                  putchar(AC), port = IR7:0
+     
      0D        IN                                   AC = getchar(), port = IR7:0
+     
      0E        JP@                                  BRA (R0)
+     
      0F        OPR                                  Allows microcoded instructions and NOP AC &= AC
 
 ### Influences
