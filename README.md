@@ -7,30 +7,46 @@ Nino  is a simulated CPU - loosely based on the Manchester Baby of 1948.
 
 I have written it in C++ on the Arduino IDE. This makes it accessible to anyone who has an Arduino compatible board.
 
-
 I use the Teensy 4, because it is stupidly fast! 
 
 But you can run it on anything from an ATmega328 upwards.
 
+It deviates from the Manchester Baby in that it allows up to 16 instructions in its Instruction Set. 
 
-It deviates from the Manchester Baby in that it allows up to 16 instructions in its Instruction Set.
+It also uses a 24-bit word in memory.  
 
- This makes it a lot more versatile.
+This includes a 4-bit field for the instruction, a 4-bit field for register select select, and a 16-bit address/data field.
 
-It also uses a 24-bit instruction word.  
+The op-code or function is controlled by bits 23:20 of the instruction word. This allows for 16 instructions.
 
-This allows an 8-bit field for the instruction and register select, and a 16-bit address/data field.
 I have moved the address/data field to the right of the instruction word and made it little endian.  It occupies bits 15:0 of the instruction word.
 
-If it were implemented as a bit-serial processor, this would be the natural way to serialise the data - LSB first.
+If Nino were implemented as a bit-serial processor, this would be the natural way to serialise the data - LSB first.
+
+I have also built upon the experience gained from the Baby and the Manchester MK 1, where certain locations in memory were used as index registers. These were included to allow the program counter to be modified, using the data from the register. This allows relative jumps, indexed addressing and incrementing/decrementing of the PC. 
 
 The Manchester Baby was the first machine to make use of index registers, or "modifiers" as they were called in 1948.
 
 I have made provision for 16 such 16-bit registers, labelled R0 to R15.
 
-These registers will occupy a contiguous block of 16-words in memory. They are general purpose, so they can be used for various tasks. They are addressed by the "Register Field" which is bits 19:16 of the instruction word.
+These registers will occupy a contiguous block of 16-words in memory. They are general purpose, so they can be used for various tasks. 
 
-The op-code or function is controlled by bits 23:20 of the instruction word.
+They are addressed by the "Register Field" which is bits 19:16 of the instruction word.
+
+These registers can be manipulated from the Accumulator, and may also be used in their own right as (multiple) program counters, allowing rapid context change, and as stack pointers and temporary stores for frequently required data, without having to branch further into memory.
+
+Experience has shown that programs consist of small modular routines, seldom exceeding 20 or 30 words, so relative branching and the ability to move locally both forwards and backwards within a limited range of addresses greatly enhances versatility. It also allows the use of relocatable code, if very few absolute jumps are specified.
+
+###Instructions
+
+The instruction incorporates the op-code field and the register select field as an orthogonal means of performing a wide range of 16-bit operations. This leads for a very easy to remember instruction set as it can be expressed as a pair of hex digits the upper or  rightmost digit is the op-code and the lower digit is the register number.
+
+Registers are coded to reside in the first 16-bit words of memory, followed by a series of RST (restart) operations.
+
+
+
+
+
 
 
 So the instruction field looks something like a pair of hex nibbles:
